@@ -36,7 +36,7 @@ export default class EventsManager {
 
     getEventParameters = async (id, username, start_date, tag) => {
         try {
-            let query = `
+            const query = `
                 SELECT 
                     e.id AS id,
                     e.name AS evento_nombre,
@@ -72,6 +72,28 @@ export default class EventsManager {
                 ORDER BY e.id
             `;
             const result = await pool.query(query, [username, start_date, tag, id]);
+            return result.rows;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+
+    getUserParameters = async(id, username) => {
+        try {
+            let query = `
+                SELECT 
+                    u.id, 
+                    u.username, 
+                    u.first_name, 
+                    u.last_name
+                FROM users u
+                WHERE
+                    ($1::integer IS NOT NULL AND u.id = $1)
+                    OR
+                    ($1::integer IS NULL AND ($2::varchar IS NULL OR u.username = $2))
+            `;
+            const result = await pool.query(query, [id, username]);
             return result.rows;
         } catch (err) {
             console.error(err);
