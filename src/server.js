@@ -8,7 +8,7 @@ const port = 3000;
 app.use(cors());         // Middleware de CORS
 app.use(express.json()); // Middleware para parsear y comprender JSON
 
-app.use("/api/event", EventRouter)
+app.use('/api/event', EventRouter)
 
 
 app.listen(port, () => {
