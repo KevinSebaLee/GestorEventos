@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import eventService from '../services/event.js'
+import userService from '../services/user.js'
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
     }
   
     try {  
-      const user = eventService.getUserParameters(null, username);
+      const user = await userService.getUserParameters(null, username);
 
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
@@ -34,5 +34,28 @@ router.post('/login', async (req, res) => {
       return res.status(500).json({ error: 'Login failed' });
     }
   });
+
+router.post('/register', async (req, res) => {
+    const { username, password, firstName, lastName } = req.body;
+
+    if (!username || !password || !firstName || !lastName) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    const existingUser = await userService.getUserParameters(null, username);
+
+    if (existingUser.length > 0) {
+        return res.status(400).json({ error: 'Email already registered'});
+    }
+
+    try {
+        const newUser = await userService.createUser({ username, password, firstName, lastName });
+
+        return res.status(201).json({ message: 'User registered successfully', user: newUser });
+    } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({ error: 'Registration failed' });
+    }
+});
 
 export default router;

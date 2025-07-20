@@ -18,10 +18,4 @@ const getEventsParameters = async(id, nombre, fecha_inicio, tag) => {
     return events
 }
 
-const getUserParameters = async(id, username) => {
-    const user = await repo.getUserParameters(id, username);
-
-    return user;
-}
-
-export default { getEvents, getEventsParameters, getUserParameters };
+export default { getEvents, getEventsParameters };

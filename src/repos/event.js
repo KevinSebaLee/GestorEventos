@@ -71,29 +71,9 @@ export default class EventsManager {
                 GROUP BY e.id, e.name, e.description, e.start_date, e.id_creator_user, u.last_name, u.first_name, u.username, el.id, el.name, el.latitude, el.longitude
                 ORDER BY e.id
             `;
-            const result = await pool.query(query, [username, start_date, tag, id]);
-            return result.rows;
-        } catch (err) {
-            console.error(err);
-            return [];
-        }
-    }
 
-    getUserParameters = async(id, username) => {
-        try {
-            let query = `
-                SELECT 
-                    u.id, 
-                    u.username, 
-                    u.first_name, 
-                    u.last_name
-                FROM users u
-                WHERE
-                    ($1::integer IS NOT NULL AND u.id = $1)
-                    OR
-                    ($1::integer IS NULL AND ($2::varchar IS NULL OR u.username = $2))
-            `;
-            const result = await pool.query(query, [id, username]);
+            const result = await pool.query(query, [username, start_date, tag, id]);
+
             return result.rows;
         } catch (err) {
             console.error(err);
