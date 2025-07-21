@@ -14,6 +14,8 @@ router.post('/login', async (req, res) => {
     try {  
       const user = await userService.getUserParameters(null, username);
 
+      console.log('User:', user);
+
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -23,9 +25,9 @@ router.post('/login', async (req, res) => {
       if (!isPasswordValid) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
-  
-      const payload = { id: user.id, email: user.username };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+      const payload = { id: user[0].id, email: user[0].username };
+      const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
   
       return res.json({ token, message: 'Logged in successfully!' });
   
@@ -56,6 +58,10 @@ router.post('/register', async (req, res) => {
         console.error('Error:', err);
         return res.status(500).json({ error: 'Registration failed' });
     }
+});
+
+router.get('/logout', (req, res) => {
+  res.status(200).json({ message: 'Logged out successfully' });
 });
 
 export default router;

@@ -9,13 +9,16 @@ const getEvents = async () => {
 };
 
 const getEventsParameters = async(id, nombre, fecha_inicio, tag) => {
-    console.log(id)
-
     const events = (id) 
     ? await repo.getEventParameters(parseInt(id, 10))
     : await repo.getEventParameters(null, nombre, fecha_inicio, tag)
 
     return events
+}
+
+const getOnlyEventParameters = async(id) => {
+    const event = await repo.getOnlyEventParameters(id);
+    return event;
 }
 
 const getEventLocationsParameters = async(id) => {
@@ -29,4 +32,10 @@ const createEvent = async(eventData) => {
     return newEvent;
 }
 
-export default { getEvents, getEventsParameters, createEvent, getEventLocationsParameters };
+const updateEvent = async(eventData) => {
+    const updatedEvent = await repo.updateEvent(eventData);
+
+    return updatedEvent;
+}
+
+export default { getEvents, getEventsParameters, getOnlyEventParameters, createEvent, getEventLocationsParameters, updateEvent };

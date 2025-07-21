@@ -1,3 +1,4 @@
+import event from '../services/event.js';
 import config from './../config/config.js';
 import pkg from "pg";
 
@@ -34,7 +35,7 @@ export default class EventsManager {
         }
     }
 
-    getEventParameters = async (id, username, start_date, tag) => {
+    getEventParameters = async (id, username, start_date, tag) => {        
         try {
             const query = `
                 SELECT 
@@ -53,9 +54,9 @@ export default class EventsManager {
                     array_agg(t.name) AS tags
                 FROM events e
                 INNER JOIN users u ON u.id = e.id_creator_user
-                INNER JOIN event_locations el ON el.id = e.id_event_location
-                INNER JOIN event_tags et ON et.id_event = e.id
-                INNER JOIN tags t ON t.id = et.id_tag
+                LEFT JOIN event_locations el ON el.id = e.id_event_location
+                LEFT JOIN event_tags et ON et.id_event = e.id
+                LEFT JOIN tags t ON t.id = et.id_tag
                 WHERE
                     (
                         $4::integer IS NOT NULL
@@ -81,13 +82,28 @@ export default class EventsManager {
         }
     }
 
+    getOnlyEventParameters = async (id) => {
+        try {
+            const result = await pool.query(`
+                SELECT *
+                FROM events
+                WHERE id = $1
+            `, [id]);
+
+            return result.rows[0];
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
     getEventLocationsParameters = async (id) => {
         try {
             const result = await pool.query(`
                 SELECT *
                 FROM event_locations
-                ORDER BY id
                 WHERE id = $1
+                ORDER BY id
             `, [id]
             );
 
@@ -99,8 +115,6 @@ export default class EventsManager {
     }
 
     createEvent = async (eventData) => {
-        console.log(eventData);
-
         try {
             const query = `
                 INSERT INTO events (name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user)
@@ -113,6 +127,33 @@ export default class EventsManager {
         } catch (err) {
             console.error(err);
             throw new Error('Error creating event');
+        }
+    }
+
+    updateEvent = async(eventData) => {
+        try{
+            const query = `
+                UPDATE events
+                SET
+                    name = COALESCE($1, name),
+                    description = COALESCE($2, description),
+                    id_event_category = COALESCE($3, id_event_category),
+                    id_event_location = COALESCE($4, id_event_location),
+                    start_date = COALESCE($5::timestamp, start_date),
+                    duration_in_minutes = COALESCE($6, duration_in_minutes),
+                    price = COALESCE($7, price),
+                    enabled_for_enrollment = COALESCE($8, enabled_for_enrollment),
+                    max_assistance = COALESCE($9, max_assistance)
+                WHERE id = $10
+            `;
+
+            const result = await pool.query(query, eventData);
+
+            return { message: 'Event updated successfully' };
+        }catch(err)
+        {
+            console.error(err)
+            throw new Error('Error updating event')
         }
     }
 }

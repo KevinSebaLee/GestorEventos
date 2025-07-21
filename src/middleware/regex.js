@@ -6,3 +6,4 @@ export function validateEvent(req, res, next) {
     res.status(400).json({ message: 'Must contain more than 3 letters' });
   }
 }
+
