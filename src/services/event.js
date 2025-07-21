@@ -38,4 +38,10 @@ const updateEvent = async(eventData) => {
     return updatedEvent;
 }
 
-export default { getEvents, getEventsParameters, getOnlyEventParameters, createEvent, getEventLocationsParameters, updateEvent };
+const deleteEvent = async(id) => {
+    const deletedEvent = await repo.deleteEvent(id);
+    
+    return deletedEvent;
+}
+
+export default { getEvents, getEventsParameters, getOnlyEventParameters, createEvent, getEventLocationsParameters, updateEvent, deleteEvent };

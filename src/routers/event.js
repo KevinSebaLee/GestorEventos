@@ -3,7 +3,7 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 import _ from 'lodash';
 import { Router } from 'express';
 import eventService from '../services/event.js'
-import { requireAuth } from '../middleware/auth.js';
+import { checkOwnership, requireAuth } from '../middleware/auth.js';
 import pkg from 'pg'
 import { validateEvent } from '../middleware/regex.js';
 
@@ -68,22 +68,13 @@ router.post('/', requireAuth, validateEvent, async (req, res) => {
     }
 });
 
-router.put('/:id', requireAuth, validateEvent, async (req, res) => {
+router.put('/:id', requireAuth, validateEvent, checkOwnership, async (req, res) => {
     const { id } = req.user;
     const id_event = req.params.id;
     const { name, description, id_event_categoria, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance } = req.body;
 
     const event = await eventService.getOnlyEventParameters(id_event);
 
-    if (!id_event || event === undefined || event.length === 0) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Event ID is required' });
-    }
-
-    if (id != event.id_creator_user) {
-        return res.status(StatusCodes.FORBIDDEN).json({ message: 'User isn\'t the owner of this event' });
-    }
-
-    // Normalize the event from database for comparison
     const normalizedEvent = {
         id: Number(event.id),
         name: String(event.name),
@@ -111,13 +102,6 @@ router.put('/:id', requireAuth, validateEvent, async (req, res) => {
         max_assistance: Number(max_assistance),
         id_creator_user: Number(id)
     };
-
-    console.log('Database event:', normalizedEvent);
-    console.log('Event to change:', eventToChange);
-    
-    console.log('Database start_date:', normalizedEvent.start_date);
-    console.log('New start_date:', eventToChange.start_date);
-    console.log('Are dates equal?', normalizedEvent.start_date.getTime() === eventToChange.start_date.getTime());
 
     const isSame = _.isEqual(normalizedEvent, eventToChange);
 
@@ -164,5 +148,17 @@ router.get('/:id', async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
     }
 })
+
+router.delete('/:id', requireAuth, checkOwnership, async (req, res) => {
+    const id_event = req.params.id;
+
+    try {
+        const deletedEvent = await eventService.deleteEvent(id_event);
+        return res.status(StatusCodes.OK).json(deletedEvent);
+    } catch (error) {
+        console.error(error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    }
+});
 
 export default router;

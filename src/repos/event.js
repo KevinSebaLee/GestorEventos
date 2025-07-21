@@ -156,4 +156,19 @@ export default class EventsManager {
             throw new Error('Error updating event')
         }
     }
+
+    deleteEvent = async (id) => {
+        try {
+            const query = `
+                DELETE FROM events
+                WHERE id = $1
+            `;
+
+            await pool.query(query, [id]);
+            return { message: 'Event deleted successfully' };
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error deleting event');
+        }
+    }
 }
