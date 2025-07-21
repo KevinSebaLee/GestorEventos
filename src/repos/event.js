@@ -80,4 +80,39 @@ export default class EventsManager {
             return [];
         }
     }
+
+    getEventLocationsParameters = async (id) => {
+        try {
+            const result = await pool.query(`
+                SELECT *
+                FROM event_locations
+                ORDER BY id
+                WHERE id = $1
+            `, [id]
+            );
+
+            return result.rows;
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+
+    createEvent = async (eventData) => {
+        console.log(eventData);
+
+        try {
+            const query = `
+                INSERT INTO events (name, description, id_event_category, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                RETURNING id
+            `;
+
+            const result = await pool.query(query, eventData);
+            return result.rows[0];
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error creating event');
+        }
+    }
 }
