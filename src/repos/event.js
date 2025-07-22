@@ -204,6 +204,21 @@ export default class EventsManager {
         }
     }
 
+    deleteEnrollment = async (id_event, id_user) => {
+        try {
+            const query = `
+                DELETE FROM event_enrollments
+                WHERE id_event = $1 AND id_user = $2
+            `;
+
+            await pool.query(query, [id_event, id_user]);
+            return { message: 'Enrollment deleted successfully' };
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error deleting enrollment');
+        }
+    }
+
     getEnrollment = async(id_user) => {
         try {
             const query = `

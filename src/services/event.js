@@ -62,4 +62,10 @@ const getEnrollment = async(id_user) => {
     return enrollment;
 }
 
-export default { getEvents, getEventsParameters, getOnlyEventParameters, createEvent, getEventLocationsParameters, updateEvent, deleteEvent, enrollmentEvent, checkEventEnrollment, getEnrollment };
+const deleteEnrollment = async(id_event, id_user) => {
+    const deletedEnrollment = await repo.deleteEnrollment(id_event, id_user);
+    
+    return deletedEnrollment;
+}
+
+export default { getEvents, getEventsParameters, getOnlyEventParameters, createEvent, getEventLocationsParameters, updateEvent, deleteEvent, enrollmentEvent, checkEventEnrollment, getEnrollment, deleteEnrollment };

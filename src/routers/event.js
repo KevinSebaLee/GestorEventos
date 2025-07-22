@@ -178,7 +178,7 @@ router.post('/:id/enrollment', requireAuth, async (req, res) => {
 
     try {
         const event = await eventService.getOnlyEventParameters(id_event);
-        
+
         if (!event) {
             return res.status(StatusCodes.NOT_FOUND).json({ message: 'Event not found' });
         }
@@ -212,6 +212,31 @@ router.post('/:id/enrollment', requireAuth, async (req, res) => {
 
         const updatedEvent = await eventService.enrollmentEvent(eventData);
         return res.status(StatusCodes.OK).json(updatedEvent);
+    } catch (error) {
+        console.error(error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    }
+});
+
+router.delete('/:id/enrollment', requireAuth, async (req, res) => {
+    const id_user = req.user.id;
+    const id_event = req.params.id;
+
+    try {
+        const event = await eventService.getOnlyEventParameters(id_event);
+
+        if (!event) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Event not found' });
+        }
+
+        const enrollment = await eventService.getEnrollment(id_user);
+        if (enrollment.length === 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'User is not enrolled in this event' });
+        }
+
+        const deletedEnrollment = await eventService.deleteEnrollment(id_event, id_user);
+
+        return res.status(StatusCodes.OK).json(deletedEnrollment);
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
