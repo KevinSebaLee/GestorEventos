@@ -171,4 +171,52 @@ export default class EventsManager {
             throw new Error('Error deleting event');
         }
     }
+
+    checkEnrollmentEvent = async(id_event) => {
+        try {
+            const query = `
+                SELECT COUNT(id)
+                FROM event_enrollments
+                WHERE id_event = $1
+            `;
+
+            const result = await pool.query(query, [id_event]);
+            return result.rows[0].count > 0;
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error checking enrollment');
+        }
+    }
+
+    enrollmentEvent = async (eventData) => {
+        try {
+            const query = `
+                INSERT INTO event_enrollments (id_event, id_user, description, registration_date_time, attended, observations, rating)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id
+            `;
+
+            const result = await pool.query(query, eventData);
+            return result.rows[0];
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error enrolling in event');
+        }
+    }
+
+    getEnrollment = async(id_user) => {
+        try {
+            const query = `
+                SELECT *
+                FROM event_enrollments
+                WHERE id_user = $1
+            `;
+
+            const result = await pool.query(query, [id_user]);
+            return result.rows;
+        } catch (err) {
+            console.error(err);
+            throw new Error('Error fetching enrollments');
+        }
+    }
 }
