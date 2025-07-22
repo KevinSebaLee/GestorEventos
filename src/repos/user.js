@@ -7,7 +7,7 @@ const pool = new Pool(config);
 export default class UsersManager {
     getUserParameters = async (id, username) => {
         try {
-            let query = `
+            const query = `
                 SELECT 
                     u.id, 
                     u.username, 

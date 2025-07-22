@@ -1,4 +1,3 @@
-import event from '../services/event.js';
 import config from './../config/config.js';
 import pkg from "pg";
 

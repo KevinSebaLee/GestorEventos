@@ -28,7 +28,10 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', requireAuth, validateEvent, async (req, res) => {
-    const { name, description, id_event_categoria, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance, id_creator_user } = req.body;
+    const { name, description, id_event_categoria, id_event_location, start_date, duration_in_minutes, price, enabled_for_enrollment, max_assistance } = req.body;
+    const { id } = req.user;
+
+    const id_creator_user = id;
 
     if (!name || !description) {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Name and description are required' });
